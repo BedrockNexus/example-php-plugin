@@ -1,0 +1,7 @@
+# Send a private welcome message whenever a player joins.
+send-welcome-message: true
+
+# Use & followed by a Minecraft color code to style text.
+# {player} is replaced with the recipient's name.
+welcome-message: "&aWelcome to the server, &f{player}&a!"
+command-message: "&bHello, &f{player}&b! This message came from a PocketMine plugin."

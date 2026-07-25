@@ -1,0 +1,17 @@
+{
+  "name": "bedrocknexus/example-php-plugin",
+  "description": "An example PocketMine-MP 5 plugin.",
+  "type": "pocketmine-plugin",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "BedrockNexus\\ExamplePlugin\\": "src/"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  }
+}

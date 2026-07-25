@@ -1,0 +1,22 @@
+name: BedrockNexusExample
+version: 1.0.0
+main: BedrockNexus\ExamplePlugin\Main
+src-namespace-prefix: BedrockNexus\ExamplePlugin
+api: 5.0.0
+load: POSTWORLD
+author: BedrockNexus
+description: An example PocketMine-MP plugin with a command, event, and configuration.
+website: https://bedrocknexus.com
+
+commands:
+  nexusexample:
+    description: Shows the configured example message.
+    usage: "/nexusexample"
+    aliases:
+      - bnexample
+    permission: bedrocknexus.example.command
+
+permissions:
+  bedrocknexus.example.command:
+    description: Allows use of the BedrockNexus example command.
+    default: true
