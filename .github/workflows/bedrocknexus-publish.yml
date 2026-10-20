@@ -1,12 +1,12 @@
-# Managed by BedrockNexus Plugins.
+# Managed by BedrockNexus Plugins. Builds the plugin on every push and uploads
+# it as the "plugin-package" artifact; BedrockNexus copies the build a
+# developer picks and creates the GitHub release after a moderator approves it.
 name: BedrockNexus Publish
 
 on:
   push:
     branches:
       - "**"
-    tags:
-      - "v*"
   pull_request:
 
 permissions:
@@ -77,27 +77,9 @@ jobs:
             "${RUNNER_TEMP}/BedrockNexusExample.phar" "${include_paths[@]}"
           mv "${RUNNER_TEMP}/BedrockNexusExample.phar" 'dist/BedrockNexusExample.phar'
           test -s 'dist/BedrockNexusExample.phar'
-      - name: Upload validation artifact
+      - name: Upload plugin for BedrockNexus
         uses: actions/upload-artifact@v4
         with:
           name: plugin-package
           path: dist/BedrockNexusExample.phar
           if-no-files-found: error
-
-  release:
-    name: Publish release
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Download validated package
-        uses: actions/download-artifact@v4
-        with:
-          name: plugin-package
-          path: dist
-      - name: Publish GitHub Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" dist/BedrockNexusExample.phar --generate-notes --verify-tag
