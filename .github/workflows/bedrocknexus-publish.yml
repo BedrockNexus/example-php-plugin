@@ -43,14 +43,38 @@ jobs:
               include_paths+=("${optional_path}")
             fi
           done
-          include_csv=$(IFS=,; echo "${include_paths[*]}")
-          curl --fail --location --retry 3 \
-            https://github.com/pmmp/DevTools/releases/latest/download/DevTools.phar \
-            --output "${RUNNER_TEMP}/DevTools.phar"
-          php -dphar.readonly=0 "${RUNNER_TEMP}/DevTools.phar" \
-            --make "${include_csv}" \
-            --relative . \
-            --out "${RUNNER_TEMP}/BedrockNexusExample.phar"
+          # Packed with PHP's own Phar class: nothing is downloaded at build
+          # time, and the same sources always give the same file list.
+          cat > "${RUNNER_TEMP}/build-phar.php" <<'PHP'
+          <?php
+          [, $out] = $argv;
+          $files = [];
+          foreach (array_slice($argv, 2) as $path) {
+              if (!is_dir($path)) {
+                  $files[] = $path;
+                  continue;
+              }
+              $entries = new RecursiveIteratorIterator(
+                  new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
+              );
+              foreach ($entries as $entry) {
+                  if ($entry->isFile()) {
+                      $files[] = $entry->getPathname();
+                  }
+              }
+          }
+          sort($files);
+          $phar = new Phar($out);
+          $phar->startBuffering();
+          foreach ($files as $file) {
+              $phar->addFile($file, $file);
+          }
+          $phar->setStub('<?php __HALT_COMPILER();');
+          $phar->stopBuffering();
+          echo count($files), " files packed into ", basename($out), PHP_EOL;
+          PHP
+          php -dphar.readonly=0 "${RUNNER_TEMP}/build-phar.php" \
+            "${RUNNER_TEMP}/BedrockNexusExample.phar" "${include_paths[@]}"
           mv "${RUNNER_TEMP}/BedrockNexusExample.phar" 'dist/BedrockNexusExample.phar'
           test -s 'dist/BedrockNexusExample.phar'
       - name: Upload validation artifact
